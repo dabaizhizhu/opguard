@@ -1,0 +1,44 @@
+# 发布配置：推送 v* 标签（如 v0.3.0）时自动构建并发布到 PyPI。
+#
+# 使用前准备（一次性）：
+# 1. 在 PyPI 上注册 opguard-core 项目名（如被占用需改名）。
+# 2. PyPI 项目设置 -> Publishing -> 添加 Trusted Publisher：
+#    Owner = 你的 GitHub 用户名，Repository = 本仓库名，Workflow = publish.yml。
+#   使用 OpenID Connect 免密发布，不需要在仓库里存任何 token。
+# 3. Homepage / Documentation / Issues 链接已在 pyproject.toml 的 [project.urls] 中配置。
+
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  id-token: write   # OpenID Connect 可信发布所需
+  contents: read
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build distributions
+        working-directory: packages/opguard-core
+        run: |
+          python -m pip install --upgrade build twine
+          python -m build
+
+      - name: Verify distribution metadata
+        working-directory: packages/opguard-core
+        run: python -m twine check dist/*
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: packages/opguard-core/dist/

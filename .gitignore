@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# 测试与工具缓存
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+coverage.xml
+htmlcov/
+
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# 审计产物（运行时生成，禁止入库）
+*.jsonl
+opguard-audit.jsonl
+tmp.jsonl
+
+# 编辑器 / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# Secrets / local env
+.env
+.env.local
+.env.*
+!.env.example
+

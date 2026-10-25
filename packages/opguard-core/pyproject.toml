@@ -1,0 +1,26 @@
+[project]
+name = "opguard-core"
+version = "0.3.0"
+description = "Decision, gateway, and execution guard for agent tool calls. Protection only."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "OpGuard" }]
+keywords = ["agent", "guardrail", "policy", "audit"]
+dependencies = []
+
+[project.optional-dependencies]
+embeddings = ["sentence-transformers>=2.7"]
+test = ["pytest>=8"]
+
+[project.urls]
+Homepage = "https://github.com/dabaizhizhu/opguard-core"
+Documentation = "https://github.com/dabaizhizhu/opguard-core#readme"
+Issues = "https://github.com/dabaizhizhu/opguard-core/issues"
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
