@@ -46,6 +46,7 @@ class GuardedAgent:
         self.chain = chain
         self.tools = tuple(tools)
         self.middleware_attached = True
+        self.upstream: Any = None
 
     def call_tool(self, call: ToolCall) -> HandleResult:
         return self.chain.handle(self.ticket, call)
@@ -94,6 +95,51 @@ def guarded_agent_factory(
         tools=tools,
         middleware_attached=middleware_attached,
     )
+
+
+def create_deep_agent(
+    *,
+    name: str = "agent",
+    ticket: IntentTicket | None = None,
+    guard: GuardChain | None = None,
+    tools: tuple[str, ...] | list[str] = (),
+    delegate_upstream: bool = False,
+    **kwargs: Any,
+) -> GuardedAgent:
+    """Guarded entry point for a DeepAgents-style factory.
+
+    The returned agent always carries ``guard``. There is no unguarded mode.
+    ``delegate_upstream`` forwards leftover kwargs to ``deepagents.create_deep_agent``
+    when that package is installed; the guard chain still wraps the result.
+    """
+
+    if guard is None or ticket is None:
+        raise GuardAttachmentError("create_deep_agent 拒绝未挂守卫的代理")
+    agent = guarded_agent_factory(name=name, ticket=ticket, chain=guard, tools=tools, middleware_attached=True)
+    if delegate_upstream:
+        agent.upstream = _load_upstream(**kwargs)
+    return agent
+
+
+def _load_upstream(**kwargs: Any) -> Any:
+    try:
+        import deepagents  # type: ignore
+    except ImportError:
+        return None
+    factory = getattr(deepagents, "create_deep_agent", None)
+    if factory is None:
+        return None
+    try:
+        return factory(**kwargs)
+    except Exception as exc:
+        # 上游故障不得静默吞掉：守卫包装本身仍然生效（fail-closed），
+        # 但必须让调用方可观测到上游装配失败，避免误以为 agent 正常工作。
+        warnings.warn(
+            f"deepagents.create_deep_agent 调用失败，已降级为无上游的守卫代理："
+            f"{type(exc).__name__}: {exc}",
+            stacklevel=2,
+        )
+        return None
 
 
 def build_prod_guard(

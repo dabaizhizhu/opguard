@@ -35,7 +35,7 @@ from opguard.policy.embedding import EmbeddingProvider, HashingEmbedding, Script
 from opguard.policy.jev import DemoJevAuditor, HttpJevAuditor, JevAuditor
 from opguard.policy.sandbox import ClassifyingSandbox, SandboxBackend, SubprocessSandbox
 from opguard.core.execution import DryRunAdapter, ExecutionAdapter
-from opguard.core.factory import GuardChain, build_prod_guard, guarded_agent_factory
+from opguard.core.factory import GuardChain, build_prod_guard, create_deep_agent, guarded_agent_factory
 from opguard.core.runtime import OpGuard, build_lab_guard
 
 __version__ = VERSION
@@ -83,5 +83,6 @@ __all__ = [
     "build_call",
     "build_lab_guard",
     "build_prod_guard",
+    "create_deep_agent",
     "guarded_agent_factory",
 ]
